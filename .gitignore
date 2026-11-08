@@ -1,0 +1,5 @@
+precios.db
+precios.db-*
+__pycache__/
+*.log
+.DS_Store

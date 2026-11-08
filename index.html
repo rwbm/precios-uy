@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Precios UY</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7385; --line:#e3e6ec; --acc:#2563eb; --ok:#15803d; --ti:#b91c1c; --disco:#c2410c; --devoto:#7c3aed; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.4 system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--fg); }
+  header { padding:16px 20px; background:var(--card); border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:center; }
+  header h1 { font-size:18px; margin:0; }
+  nav button { background:none; border:0; padding:8px 12px; font:inherit; cursor:pointer; color:var(--muted); border-radius:6px; }
+  nav button.on { background:#e8eefc; color:var(--acc); font-weight:600; }
+  main { max-width:1200px; margin:0 auto; padding:20px; }
+  form.bar { display:flex; gap:8px; margin-bottom:16px; }
+  input[type=text] { flex:1; padding:10px 12px; font:inherit; border:1px solid var(--line); border-radius:8px; }
+  button.btn { padding:10px 16px; font:inherit; border:0; border-radius:8px; background:var(--acc); color:#fff; cursor:pointer; }
+  button.btn.sec { background:#e8eaef; color:var(--fg); }
+  button.btn:disabled { opacity:.5; cursor:default; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:800px){ .cols { grid-template-columns:1fr; } }
+  .col h2 { font-size:15px; margin:0 0 8px; }
+  .prod { display:flex; gap:10px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:8px; margin-bottom:6px; cursor:pointer; }
+  .prod.sel { border-color:var(--acc); box-shadow:0 0 0 1px var(--acc); }
+  .prod img { width:48px; height:48px; object-fit:contain; flex:none; }
+  .prod .name { flex:1; min-width:0; }
+  .prod .note { color:var(--muted); font-size:12px; }
+  .price { font-weight:700; white-space:nowrap; }
+  .score { font-size:11px; padding:2px 6px; border-radius:10px; background:#eef0f4; color:var(--muted); }
+  .score.hi { background:#dcfce7; color:var(--ok); }
+  .savebar { position:sticky; bottom:0; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; margin-top:16px; display:flex; gap:8px; align-items:center; }
+  .muted { color:var(--muted); }
+  .item { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .item h3 { margin:0 0 8px; font-size:16px; display:flex; gap:8px; align-items:center; }
+  .item h3 span { flex:1; }
+  .row { display:grid; grid-template-columns:130px 1fr auto; gap:10px; padding:4px 0; border-top:1px solid var(--line); align-items:center; }
+  .row.best .price { color:var(--ok); }
+  .store-tiendainglesa { color:var(--ti); font-weight:600; }
+  .store-disco { color:var(--disco); font-weight:600; }
+  .store-devoto { color:var(--devoto); font-weight:600; }
+  #results { grid-template-columns:repeat(3, 1fr); }
+  @media (max-width:1000px){ #results { grid-template-columns:1fr; } }
+  a { color:inherit; }
+  .small { font-size:12px; }
+  .err { color:#b91c1c; }
+  .bar select, .bar input[type=text] { padding:10px 12px; font:inherit; border:1px solid var(--line); border-radius:8px; background:var(--card); }
+  .bar select { min-width:200px; }
+  .bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .cols-list { grid-template-columns: 380px 1fr; align-items:start; }
+  @media (max-width:800px){ .cols-list { grid-template-columns:1fr; } }
+  .h2 { font-size:15px; margin:0 0 8px; }
+  .ac { position:relative; margin-bottom:8px; }
+  .ac input { width:100%; }
+  .sugg { position:absolute; z-index:5; left:0; right:0; background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.08); max-height:280px; overflow:auto; }
+  .sugg div { padding:8px 10px; cursor:pointer; }
+  .sugg div:hover { background:#f0f3fa; }
+  .entry { display:flex; gap:8px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; margin-bottom:6px; }
+  .entry span { flex:1; }
+  .num { width:80px; padding:6px 8px; font:inherit; border:1px solid var(--line); border-radius:6px; }
+  .x { background:none; border:0; cursor:pointer; color:var(--muted); font-size:18px; }
+  .opts { display:flex; flex-direction:column; gap:8px; margin-top:16px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .totals { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:14px; }
+  .tot { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .tot.win { border-color:var(--ok); box-shadow:0 0 0 1px var(--ok); }
+  .tot .big { font-size:22px; font-weight:700; }
+  .plan { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .plan h3 { margin:0 0 4px; font-size:16px; }
+  .plan h4 { margin:14px 0 4px; }
+  .pline { display:grid; grid-template-columns:1fr auto auto; gap:12px; padding:4px 0; border-top:1px solid var(--line); }
+  .save { color:var(--ok); font-weight:600; }
+  .tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:10px; }
+  table.grid { width:100%; border-collapse:collapse; }
+  .grid th { text-align:left; font-size:13px; padding:10px 12px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--card); }
+  .grid td { padding:8px 12px; border-top:1px solid var(--line); vertical-align:top; }
+  .grid .num-c { text-align:right; white-space:nowrap; }
+  .irow { cursor:pointer; }
+  .irow:hover, .irow.open { background:#f6f8fc; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; }
+  .cheap .pill { background:#dcfce7; color:var(--ok); font-weight:700; box-shadow:inset 0 0 0 1px #86efac; }
+  .cheap .pill::before { content:"✓ "; }
+  .wins { display:block; font-weight:400; color:var(--muted); font-size:11px; }
+  .club { color:var(--ti); }
+  .idetail td { background:#fafbfd; border-top:0; }
+  .drow { display:grid; grid-template-columns:120px 1fr auto; gap:10px; padding:3px 0; }
+  .dact { display:flex; gap:8px; margin-top:8px; }
+  .btn.small { padding:6px 10px; font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Precios UY</h1>
+  <nav><button data-tab="consultar" class="on">Consultar</button><button data-tab="agregar">Agregar artículo</button><button data-tab="compras">Compras</button></nav>
+</header>
+<main>
+  <section id="consultar">
+    <div class="bar">
+      <input type="text" id="q2" placeholder="Filtrar artículos…" autocomplete="off">
+      <select id="sort2">
+        <option value="name">Orden: nombre</option>
+        <option value="diff">Orden: mayor diferencia</option>
+        <option value="old">Orden: precio más viejo</option>
+      </select>
+      <button class="btn sec" id="brefall">Actualizar todos</button>
+    </div>
+    <p class="muted small" id="istatus"></p>
+    <div class="tablewrap"><table class="grid" id="items"></table></div>
+  </section>
+
+  <section id="agregar" hidden>
+    <form class="bar" id="fs"><input type="text" id="q" placeholder="Ej: leche entera conaprole 1 l"><button class="btn" id="bs">Buscar en los súper</button></form>
+    <p class="muted small" id="status">Buscá un producto, marcá los que corresponden en cada súper y guardalo como un artículo. Incluir el tamaño (1 l, 500 g) mejora el matching.</p>
+    <div class="cols" id="results"></div>
+    <div class="savebar" id="savebar" hidden>
+      <input type="text" id="iname" placeholder="Nombre del artículo">
+      <span class="muted small" id="selcount"></span>
+      <button class="btn" id="bsave">Guardar</button>
+    </div>
+  </section>
+
+  <section id="compras" hidden>
+    <div class="bar">
+      <select id="lsel"></select>
+      <button class="btn sec" id="ldel">Borrar lista</button>
+      <input type="text" id="lnew" placeholder="Nueva lista (ej: compra semanal)">
+      <button class="btn sec" id="lcreate">Crear</button>
+    </div>
+    <div class="cols cols-list" id="lbody" hidden>
+      <div>
+        <h2 class="h2">Artículos</h2>
+        <div class="ac">
+          <input type="text" id="ladd" placeholder="Agregar un artículo guardado…" autocomplete="off">
+          <div class="sugg" id="lsugg" hidden></div>
+        </div>
+        <div id="lentries"></div>
+        <div class="opts">
+          <label><input type="checkbox" id="orefresh" checked> Actualizar precios antes de calcular</label>
+          <label><input type="checkbox" id="oclub"> Usar precio ClubCard (Tienda Inglesa)</label>
+          <label>Costo por cada súper que uses: $ <input type="number" id="ocost" value="0" min="0" step="10" class="num"></label>
+          <span class="muted small">Envío o lo que te cuesta ir a otro súper. Evita que te mande a dos lugares para ahorrar poco.</span>
+          <button class="btn" id="bcalc">Calcular</button>
+        </div>
+      </div>
+      <div id="lresult"></div>
+    </div>
+  </section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const fmt = p => p == null ? "—" : "$ " + p.toLocaleString("es-UY", {maximumFractionDigits: 2});
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const STORES = {tiendainglesa: "Tienda Inglesa", disco: "Disco", devoto: "Devoto"};
+let results = {}, selected = new Map();
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll("main section").forEach(s => s.hidden = s.id !== b.dataset.tab);
+  if (b.dataset.tab === "consultar") loadItems();
+  if (b.dataset.tab === "compras") loadLists();
+});
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.status);
+  return j;
+}
+
+$("#fs").onsubmit = async e => {
+  e.preventDefault();
+  const q = $("#q").value.trim();
+  if (!q) return;
+  $("#bs").disabled = true; $("#status").textContent = "Buscando…"; $("#results").innerHTML = "";
+  results = {}; selected.clear(); $("#savebar").hidden = true;
+  try {
+    const r = await api("/api/search?q=" + encodeURIComponent(q));
+    results = r.results;
+    // preselecciona el mejor de cada súper si el match es bueno
+    for (const [store, rows] of Object.entries(results))
+      if (rows[0] && rows[0].score >= 0.75) selected.set(key(rows[0]), rows[0]);
+    $("#iname").value = q;
+    const errs = Object.entries(r.errors).map(([s, e]) => `${STORES[s]}: ${e}`).join(" · ");
+    $("#status").innerHTML = errs ? `<span class="err">${esc(errs)}</span>` : "Marcá los productos que son el mismo artículo (el % es el parecido con lo que buscaste).";
+    renderResults();
+  } catch (err) { $("#status").innerHTML = `<span class="err">${esc(err.message)}</span>`; }
+  $("#bs").disabled = false;
+};
+
+const key = p => p.store + ":" + p.pid;
+
+function renderResults() {
+  $("#results").innerHTML = Object.entries(STORES).map(([store, label]) => `
+    <div class="col"><h2 class="store-${store}">${label} <span class="muted small">(${(results[store]||[]).length})</span></h2>
+      ${(results[store]||[]).map(p => `
+        <div class="prod ${selected.has(key(p)) ? "sel" : ""}" data-k="${esc(key(p))}">
+          <img src="${esc(p.image)}" loading="lazy" alt="">
+          <div class="name">${esc(p.name)}<div class="note">${esc(p.note)} <a href="${esc(p.url)}" target="_blank" onclick="event.stopPropagation()">ver</a></div></div>
+          <span class="score ${p.score >= .75 ? "hi" : ""}">${Math.round(p.score*100)}%</span>
+          <span class="price">${fmt(p.price)}</span>
+        </div>`).join("") || '<p class="muted">Sin resultados</p>'}
+    </div>`).join("");
+  document.querySelectorAll(".prod").forEach(el => el.onclick = () => {
+    const k = el.dataset.k, [store] = k.split(":");
+    const p = results[store].find(x => key(x) === k);
+    selected.has(k) ? selected.delete(k) : selected.set(k, p);
+    renderResults();
+  });
+  $("#savebar").hidden = !Object.keys(results).length;
+  $("#selcount").textContent = `${selected.size} seleccionado(s)`;
+  $("#bsave").disabled = !selected.size;
+}
+
+$("#bsave").onclick = async () => {
+  const name = $("#iname").value.trim();
+  if (!name || !selected.size) return;
+  try {
+    const r = await api("/api/items", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({name, products: [...selected.values()]})});
+    $("#status").textContent = `Guardado "${name}".` + (r.auto_added ? ` Se completó solo en ${r.auto_added} súper más con el mismo producto.` : "");
+    results = {}; selected.clear(); $("#results").innerHTML = ""; $("#savebar").hidden = true; $("#q").value = "";
+  } catch (err) { alert(err.message); }
+};
+
+let allItems = [], openRows = new Set();
+const fold = s => String(s ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const ago = ts => {
+  if (!ts) return "";
+  const m = (Date.now() - new Date(ts.replace(" ", "T") + "Z")) / 60000;
+  return m < 60 ? `hace ${Math.max(1, Math.round(m))} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} d`;
+};
+
+async function loadItems() {
+  allItems = await api("/api/items");
+  renderItems();
+}
+
+function rowData(it) {
+  const by = {};  // store -> link más barato de ese súper
+  it.links.forEach(l => { if (l.price != null && (!by[l.store] || l.price < by[l.store].price)) by[l.store] = l; });
+  const ps = Object.values(by).map(l => l.price);
+  const ts = it.links.map(l => l.fetched_at).filter(Boolean).sort();
+  return {by, min: ps.length ? Math.min(...ps) : null, diff: ps.length > 1 ? Math.max(...ps) - Math.min(...ps) : 0, oldest: ts[0]};
+}
+
+function renderItems() {
+  const words = fold($("#q2").value).split(/\s+/).filter(Boolean);
+  let rows = allItems.map(it => ({it, d: rowData(it), hay: fold(it.name + " " + it.links.map(l => l.name).join(" "))}))
+    .filter(r => words.every(w => r.hay.includes(w)));
+  const sort = $("#sort2").value;
+  rows.sort((a, b) => sort === "diff" ? b.d.diff - a.d.diff
+    : sort === "old" ? String(a.d.oldest).localeCompare(String(b.d.oldest))
+    : a.it.name.localeCompare(b.it.name, "es"));
+  $("#istatus").textContent = allItems.length ? `${rows.length} de ${allItems.length} artículos · clic en una fila para ver el detalle` : "";
+  const stores = Object.keys(STORES);
+  $("#items").innerHTML = !allItems.length
+    ? '<tr><td class="muted">No hay artículos guardados. Agregá uno en "Agregar artículo".</td></tr>'
+    : `<thead><tr><th>Artículo</th>${stores.map(s => `<th class="num-c store-${s}">${STORES[s]}<span class="wins">más barato en ${rows.filter(r => r.d.diff > 0 && r.d.by[s]?.price === r.d.min).length}</span></th>`).join("")}<th class="num-c">Dif.</th></tr></thead>
+      <tbody>${rows.map(({it, d}) => `
+        <tr class="irow ${openRows.has(it.id) ? "open" : ""}" data-id="${it.id}">
+          <td>${esc(it.name)}<div class="muted small">${ago(d.oldest)}</div></td>
+          ${stores.map(s => {
+            const l = d.by[s];
+            return `<td class="num-c ${l && l.price === d.min && d.diff > 0 ? "cheap" : ""}">${l ? `<span class="pill">${fmt(l.price)}</span>` : '<span class="muted">—</span>'}${l?.special ? `<div class="small club">ClubCard ${fmt(l.special)}</div>` : ""}</td>`;
+          }).join("")}
+          <td class="num-c muted">${d.diff ? fmt(d.diff) : ""}</td>
+        </tr>
+        ${openRows.has(it.id) ? `<tr class="idetail" data-id="${it.id}"><td colspan="${stores.length + 2}">
+          ${it.links.map(l => `<div class="drow"><span class="store-${l.store}">${STORES[l.store]}</span>
+            <span><a href="${esc(l.url)}" target="_blank">${esc(l.name)}</a> <span class="muted small">${esc(l.note || "")}</span></span>
+            <span class="price">${fmt(l.price)}</span></div>`).join("")}
+          <div class="dact"><button class="btn sec small" data-act="refresh">Actualizar precios</button>
+            <button class="btn sec small" data-act="del">Borrar artículo</button></div>
+        </td></tr>` : ""}`).join("")}</tbody>`;
+  document.querySelectorAll(".irow").forEach(tr => tr.onclick = () => {
+    const id = +tr.dataset.id;
+    openRows.has(id) ? openRows.delete(id) : openRows.add(id);
+    renderItems();
+  });
+  document.querySelectorAll(".idetail button").forEach(b => b.onclick = async () => {
+    const id = b.closest(".idetail").dataset.id;
+    if (b.dataset.act === "del") {
+      if (!confirm("¿Borrar el artículo?")) return;
+      await api(`/api/items/${id}`, {method: "DELETE"});
+    } else {
+      b.disabled = true; b.textContent = "Actualizando…";
+      await api(`/api/items/${id}/refresh`, {method: "POST"});
+    }
+    loadItems();
+  });
+}
+
+$("#q2").oninput = renderItems;
+$("#sort2").onchange = renderItems;
+$("#brefall").onclick = async () => {
+  const b = $("#brefall");
+  b.disabled = true; b.textContent = "Actualizando…";
+  try { await api("/api/items/refresh", {method: "POST"}); await loadItems(); }
+  catch (err) { alert(err.message); }
+  b.disabled = false; b.textContent = "Actualizar todos";
+};
+loadItems();
+
+// ---------- compras ----------
+let curList = null;
+const json = body => ({method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+
+async function loadLists(selectId) {
+  const lists = await api("/api/lists");
+  const keep = selectId ?? curList?.id ?? lists[0]?.id;
+  $("#lsel").innerHTML = lists.map(l => `<option value="${l.id}" ${l.id == keep ? "selected" : ""}>${esc(l.name)} (${l.n})</option>`).join("")
+    || '<option value="">— creá una lista —</option>';
+  $("#ldel").disabled = !lists.length;
+  if (lists.length) openList($("#lsel").value); else { curList = null; $("#lbody").hidden = true; }
+}
+
+async function openList(id) {
+  curList = await api(`/api/lists/${id}`);
+  $("#lbody").hidden = false;
+  $("#lresult").innerHTML = "";
+  renderEntries();
+}
+
+function renderEntries() {
+  $("#lentries").innerHTML = curList.entries.map(e => `
+    <div class="entry" data-id="${e.item_id}">
+      <span>${esc(e.name)}</span>
+      <input type="number" class="num" value="${e.qty}" min="0" step="0.5" title="Cantidad (kg si se vende por peso)">
+      <button class="x" title="Quitar">×</button>
+    </div>`).join("") || '<p class="muted small">La lista está vacía. Agregá artículos con el buscador de arriba.</p>';
+  document.querySelectorAll(".entry").forEach(el => {
+    const id = el.dataset.id;
+    el.querySelector("input").onchange = ev => setEntry(id, parseFloat(ev.target.value) || 0);
+    el.querySelector(".x").onclick = () => setEntry(id, 0);
+  });
+  $("#bcalc").disabled = !curList.entries.length;
+}
+
+async function setEntry(item_id, qty) {
+  curList = await api(`/api/lists/${curList.id}/entries`, json({item_id: +item_id, qty}));
+  renderEntries();
+  const opt = $("#lsel").selectedOptions[0];
+  if (opt) opt.textContent = `${curList.name} (${curList.entries.length})`;
+}
+
+$("#lsel").onchange = e => openList(e.target.value);
+$("#lcreate").onclick = async () => {
+  const name = $("#lnew").value.trim();
+  if (!name) return;
+  const r = await api("/api/lists", json({name}));
+  $("#lnew").value = "";
+  loadLists(r.id);
+};
+$("#ldel").onclick = async () => {
+  if (!curList || !confirm(`¿Borrar la lista "${curList.name}"?`)) return;
+  await api(`/api/lists/${curList.id}`, {method: "DELETE"});
+  curList = null; loadLists();
+};
+
+let suggT;
+$("#ladd").oninput = () => {
+  clearTimeout(suggT);
+  suggT = setTimeout(async () => {
+    const q = $("#ladd").value.trim();
+    if (!q) { $("#lsugg").hidden = true; return; }
+    const items = (await api("/api/items?q=" + encodeURIComponent(q))).slice(0, 10);
+    const inList = new Set(curList.entries.map(e => e.item_id));
+    $("#lsugg").innerHTML = items.map(i => `<div data-id="${i.id}">${esc(i.name)}${inList.has(i.id) ? ' <span class="muted small">(ya está)</span>' : ""}</div>`).join("")
+      || '<div class="muted">No hay artículos guardados con ese nombre. Agregalo en "Agregar artículo".</div>';
+    $("#lsugg").hidden = false;
+    $("#lsugg").querySelectorAll("[data-id]").forEach(d => d.onclick = async () => {
+      const id = +d.dataset.id;
+      const cur = curList.entries.find(e => e.item_id === id);
+      await setEntry(id, cur ? cur.qty + 1 : 1);
+      $("#ladd").value = ""; $("#lsugg").hidden = true;
+    });
+  }, 200);
+};
+document.addEventListener("click", e => { if (!e.target.closest(".ac")) $("#lsugg").hidden = true; });
+
+$("#bcalc").onclick = async () => {
+  const b = $("#bcalc");
+  b.disabled = true; b.textContent = $("#orefresh").checked ? "Actualizando precios…" : "Calculando…";
+  try {
+    const r = await api(`/api/lists/${curList.id}/compute`, json({
+      refresh: $("#orefresh").checked, clubcard: $("#oclub").checked, store_cost: parseFloat($("#ocost").value) || 0}));
+    renderResult(r);
+  } catch (err) { $("#lresult").innerHTML = `<p class="err">${esc(err.message)}</p>`; }
+  b.disabled = false; b.textContent = "Calcular";
+};
+
+function renderResult(r) {
+  const best = r.best, cost = r.store_cost;
+  const names = ss => ss.map(s => STORES[s]).join(" + ");
+  const totals = Object.entries(r.per_store).map(([s, p]) => `
+    <div class="tot ${best.stores.length === 1 && best.stores[0] === s ? "win" : ""}">
+      <div class="store-${s}">Todo en ${STORES[s]}</div>
+      <div class="big">${fmt(p.total)}</div>
+      ${cost && p.stores.length ? `<div class="muted small">${fmt(p.goods)} + ${fmt(cost)} de costo</div>` : ""}
+      ${p.missing.length ? `<div class="err small">Faltan ${p.missing.length}: ${esc(p.missing.join(", "))}</div>` : '<div class="muted small">Tiene todo</div>'}
+      ${r.common_count && r.common_count < r.list.entries.length ? `<div class="muted small">En los ${r.common_count} que están en todos: ${fmt(p.common_total)}</div>` : ""}
+    </div>`).join("");
+
+  const groups = {};
+  best.lines.forEach(l => (groups[l.store] ||= []).push(l));
+  const other = (l) => {
+    const alt = Object.entries(r.detail[l.item_id] || {}).filter(([s]) => s !== l.store);
+    return alt.map(([s, o]) => `<span class="muted small">${STORES[s]} ${fmt(o.price)}</span>`).join(" ");
+  };
+  const plan = `
+    <div class="plan">
+      <h3>Mejor opción: ${best.stores.length ? names(best.stores) : "—"} · ${fmt(best.total)}</h3>
+      ${r.savings > 0 && best.stores.length > 1 ? `<div class="save">Ahorrás ${fmt(r.savings)} frente a comprar todo en ${STORES[r.best_single]}${cost ? " (ya contando el costo por súper)" : ""}</div>` : ""}
+      ${best.stores.length === 1 && r.per_store ? `<div class="muted">Comprar en un solo lugar sale más barato${cost ? " con ese costo por súper" : ""}.</div>` : ""}
+      ${best.missing.length ? `<div class="err small">No se consigue en ningún súper: ${esc(best.missing.join(", "))}</div>` : ""}
+      ${Object.entries(groups).map(([s, lines]) => `
+        <h4 class="store-${s}">${STORES[s]} · ${fmt(lines.reduce((a, l) => a + l.subtotal, 0))}</h4>
+        ${lines.map(l => `
+          <div class="pline">
+            <span>${l.qty !== 1 ? `${l.qty} × ` : ""}<a href="${esc(l.url)}" target="_blank">${esc(l.name)}</a>
+              ${l.clubcard ? '<span class="score hi">ClubCard</span>' : ""}<br>${other(l)}</span>
+            <span class="muted">${fmt(l.unit)}</span>
+            <span class="price">${fmt(l.subtotal)}</span>
+          </div>`).join("")}`).join("")}
+    </div>`;
+  $("#lresult").innerHTML = `<div class="totals">${totals}</div>${plan}`;
+}
+</script>
+</body>
+</html>
