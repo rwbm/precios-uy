@@ -2,6 +2,10 @@
 
 Comparador de precios de supermercados de Uruguay: Tienda Inglesa, Disco y Devoto.
 
+![Consultar: precio de cada artículo en cada súper](docs/consultar.png)
+
+![Compras: total por súper y mejor combinación](docs/compras.png)
+
 - **Agregar artículo:** busca en los tres súper, marcás el mismo producto en cada uno y se guarda en SQLite (`precios.db`). Disco y Devoto comparten ids: marcando uno se completa el otro.
 - **Consultar:** tabla con el precio de cada artículo en cada súper, el más barato marcado.
 - **Compras:** listas con cantidades; total en cada súper y la combinación más barata, con costo opcional por súper usado y precio ClubCard.
